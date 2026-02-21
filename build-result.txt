@@ -1,0 +1,28 @@
+[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 22 modules transformed.
+
+[31m✗[39m Build failed in 296ms
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 1 error:
+C:/Users/monta/Downloads/hr-activity-recommender (3)/app/manager/activities/page.jsx:73:36: ERROR: Expected ")" but found ":"[31m
+file: [36mC:/Users/monta/Downloads/hr-activity-recommender (3)/app/manager/activities/page.jsx:73:36[31m
+[33m
+[33mExpected ")" but found ":"[33m
+71 |    const completedActivities = activities.filter(a => a.status === "completed")
+72 |  
+73 |    const ActivityCard = ({ activity }: { activity: Activity }) => {
+   |                                      ^
+74 |      const enrolled = (enrollments[activity.id] || []).filter(id => deptEmployees.some(e => e.id === id))
+75 |      
+[31m
+    at failureErrorWithLog (c:\Users\monta\Downloads\hr-activity-recommender (3)\node_modules\esbuild\lib\main.js:1467:15)
+    at c:\Users\monta\Downloads\hr-activity-recommender (3)\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (c:\Users\monta\Downloads\hr-activity-recommender (3)\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (c:\Users\monta\Downloads\hr-activity-recommender (3)\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (c:\Users\monta\Downloads\hr-activity-recommender (3)\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m

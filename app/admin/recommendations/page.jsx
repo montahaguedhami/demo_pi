@@ -1,0 +1,179 @@
+﻿"use client"
+
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "react-router-dom"
+import { DashboardHeader } from "@/components/dashboard/header"
+import { RecommendationEngine } from "@/components/recommendations/recommendation-engine"
+import {
+  RecommendationResults,
+  generateRecommendations
+} from "@/components/recommendations/recommendation-results"
+import { activities } from "@/lib/mock-data"
+import { useData } from "@/lib/data-store"
+import { toast } from "sonner"
+import { Brain, Cpu, Sparkles, Zap, Shield } from "lucide-react"
+
+function RecommendationsContent() {
+  const [searchParams] = useSearchParams()
+  const activityId = searchParams.get("activity") // Admin uses 'activity' param
+  const { addAssignment, activities: storeActivities } = useData()
+
+  const [selectedActivity, setSelectedActivity] = useState(null)
+  const [recommendations, setRecommendations] = useState([])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [hasGenerated, setHasGenerated] = useState(false)
+  const [isForwarding, setIsForwarding] = useState(false)
+  const [isForwarded, setIsForwarded] = useState(false)
+
+  // Set activity from URL param or store
+  useEffect(() => {
+    if (activityId) {
+      const activity = storeActivities.find((a) => a.id === activityId) || null
+      setSelectedActivity(activity)
+    }
+  }, [activityId, storeActivities])
+
+  const handleGenerateRecommendations = async () => {
+    if (!selectedActivity) return
+
+    setIsGenerating(true)
+    setHasGenerated(false)
+    setIsForwarded(false)
+
+    // Simulate AI processing time with premium feel
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+
+    const results = generateRecommendations(selectedActivity)
+    setRecommendations(results)
+    setIsGenerating(false)
+    setHasGenerated(true)
+
+    toast.success("NEURAL ALIGNMENT CALCULATED", {
+      description: `Analysis synchronized for ${selectedActivity.title.toUpperCase()}.`
+    })
+  }
+
+  const handleForwardToManager = async (employeeIds, selectedRecs) => {
+    setIsForwarding(true)
+
+    // Simulate secure transfer
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    employeeIds.forEach(id => {
+      const rec = selectedRecs.find(r => r.employee.id === id)
+      addAssignment({
+        employeeId: id,
+        activityId: selectedActivity.id,
+        status: "pending_manager",
+        assignedDate: new Date(),
+        aiScore: rec?.overallScore || 0,
+        reasoning: rec?.reasoning || "AI recommended"
+      })
+    })
+
+    setIsForwarding(false)
+    setIsForwarded(true)
+
+    toast.success("DEPLOYMENT SIGNAL BROADCASTED", {
+      description: "Personnel matches forwarded to respective department heads."
+    })
+  }
+
+  return (
+    <div className="flex flex-col bg-[#F8FAFC] min-h-screen page-transition">
+      <DashboardHeader title="Command Intelligence" description="Strategic oversight and organizational talent matrix" />
+
+      <div className="flex-1 p-10 max-w-[1600px] mx-auto w-full space-y-12 animate-in fade-in duration-700">
+        <div className="flex flex-col md:flex-row items-end justify-between border-b border-slate-100 pb-12 gap-8">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-orange-500 uppercase tracking-[0.3em] font-sans">Neural Lab</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+            </div>
+            <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight leading-tight italic uppercase">Matching Engine</h1>
+            <p className="text-slate-400 font-medium text-sm">Advanced NLP-driven matchmaking between personnel nodes and mission directives.</p>
+          </div>
+          <div className="flex items-center gap-8 px-8 py-5 bg-white rounded-2xl border border-slate-100 shadow-sm shadow-orange-500/5">
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest italic leading-none mb-2">Sync Status</span>
+              <span className="text-xs font-black text-emerald-500 uppercase tracking-widest italic flex items-center gap-2">
+                Online <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
+              </span>
+            </div>
+            <div className="w-px h-8 bg-slate-100"></div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
+                <Shield className="h-4 w-4 text-orange-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest italic leading-none mb-1">Encrypted</span>
+                <span className="text-[10px] font-black text-slate-900 uppercase italic">Core Security</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-12">
+          {/* Controls Column */}
+          <div className="lg:col-span-4 space-y-10">
+            <RecommendationEngine
+              selectedActivity={selectedActivity}
+              onActivityChange={(activity) => {
+                setSelectedActivity(activity)
+                setHasGenerated(false)
+                setRecommendations([])
+                setIsForwarded(false)
+              }}
+              onGenerateRecommendations={handleGenerateRecommendations}
+              isGenerating={isGenerating}
+            />
+
+            <div className="card-premium p-10 bg-slate-900 border-none shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500 opacity-5 blur-[80px]"></div>
+              <div className="relative z-10 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center border border-orange-500/20">
+                    <Zap className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Engine Optimization</span>
+                </div>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed italic m-0">
+                  MATCHMAKING PARAMETERS ARE AUTOMATICALLY CALIBRATED BASED ON DEPARTMENTAL HISTORICAL DATA AND INDIVIDUAL PROGRESSION VELOCITY.
+                </p>
+                <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full w-2/3 bg-orange-500 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Column */}
+          <div className="lg:col-span-8">
+            <RecommendationResults
+              activity={selectedActivity}
+              recommendations={recommendations}
+              onForwardToManager={handleForwardToManager}
+              isForwarding={isForwarding}
+              isForwarded={isForwarded}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AdminRecommendationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
+        <div className="flex flex-col items-center gap-6">
+          <Cpu className="h-12 w-12 text-orange-500 animate-pulse" />
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic animate-pulse">Synchronizing Neural Lab...</p>
+        </div>
+      </div>
+    }>
+      <RecommendationsContent />
+    </Suspense>
+  )
+}
